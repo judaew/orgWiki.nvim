@@ -138,7 +138,7 @@ function utils.follow_link(link)
 
   if fs and fs.type ~= "directory" then
     vim.cmd("e " .. link)
-    vim.cmd "lcd %:h:t"
+    vim.cmd("lcd " .. vim.fn.expand "%:p:h")
 
     local bufnr = vim.api.nvim_get_current_buf()
     if not ok then
