@@ -122,6 +122,21 @@ function utils.create_link(words)
   end
 end
 
+---Opens files/links in Neovim, detects content type, opens text files, browsers.
+---@param link string Line to be parsed
+function utils.open_file(link)
+  local browser_cmd = os.getenv("BROWSER") or "xdg-open"
+  local mimetype = vim.fn.systemlist({'file', '--mime-type', '-b', link})[1]
+
+  local is_text_file = string.match(mimetype, "^text/")
+
+  if is_text_file then
+    vim.cmd("e " .. link)
+  else
+    vim.cmd("silent !" .. browser_cmd .. " '" .. link .. "'")
+  end
+end
+
 ---This function accepts a link and navigates to the link.
 ---If the link referes to a file, the buffer stack is updated. If file,  both the Window and buffer stack is updated
 ---@param link string Line to be parsed
@@ -137,7 +152,7 @@ function utils.follow_link(link)
   local fs = vim.loop.fs_stat(link)
 
   if fs and fs.type ~= "directory" then
-    vim.cmd("e " .. link)
+    utils.open_file(link)
     vim.cmd("lcd " .. vim.fn.expand "%:p:h")
 
     local bufnr = vim.api.nvim_get_current_buf()
